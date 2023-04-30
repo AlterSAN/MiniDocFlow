@@ -11,9 +11,7 @@ import MiniDFlow.entity.projection.DocumentView;
 import MiniDFlow.repository.DocumentRepository;
 import MiniDFlow.repository.DocumentVersionRepository;
 import MiniDFlow.repository.RegisterCardRepository;
-import MiniDFlow.repository.SearchDocumentVersionRepository;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
@@ -31,8 +29,6 @@ public class DocumentService {
     private RegisterCardRepository registerCardRepository;
     @Autowired
     private DocumentVersionRepository documentVersionRepository;
-    @Autowired
-    private SearchDocumentVersionRepository searchRepository;
 
     @Transactional
     public void createNewDocument(DocumentPOJO documentPOJO, Author author) throws IOException {
@@ -87,28 +83,17 @@ public class DocumentService {
     }
 
     @Transactional
-    public byte[] getFile(int id,int ver){
+    public DocumentVersion getFile(int id,int ver){
         Document document = documentRepository.getById(id);
-        return documentVersionRepository.getVersionByDocument(document,ver>=1?ver:document.getLastVersion()).getContent();
+        return documentVersionRepository.getVersionByDocument(document,ver>=1?ver:document.getLastVersion());
     }
     @Transactional
     public List<DocumentView> getAllDocViewsByAuthor(Author author) {
         return documentRepository.getAllDocViewsByAuthor(author);
     }
     @Transactional
-    public List<DocumentView> searchDocs(String query, int limit,boolean searchInTexts) throws ParseException {
-        return searchRepository.searchByDocumentName(query,limit).stream().map(
-                docVer ->
-                        new DocumentView(
-                                docVer.getDocumentId().getId(),
-                                docVer.getDocumentId().getName(),
-                                docVer.getVersionAuthor().getUsername(),
-                                docVer.getVersion(),
-                                docVer.getDocumentId().isExist(),
-                                docVer.getDocumentId().getRegisterCard().getDateIntro(),
-                                docVer.getDocumentId().getRegisterCard().getDocumentIntroNumber()
-                        )
-        ).collect(Collectors.toList());
+    public List<DocumentView> searchDocs(String query, int limit,boolean searchInTexts) {
+        return documentRepository.searchByDocumentName(query,limit);
     }
     @Transactional
     public Page<DocumentView> getPage(int p, int limit){
@@ -120,5 +105,4 @@ public class DocumentService {
         page.setContent(documentRepository.getPage((page.getCurPage()-1)*page.getLimitPage(),page.getLimitPage()));
         return page;
     }
-    //TODO pagination
 }

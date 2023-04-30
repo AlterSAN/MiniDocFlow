@@ -2,7 +2,6 @@ package MiniDFlow.controllers;
 
 import MiniDFlow.security.JdbcAuthorService;
 import MiniDFlow.service.DocumentService;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +21,7 @@ public class SearchController {
                          @RequestParam(value = "l",defaultValue = "20",required = false) int limit,
                          @RequestParam(value = "t",required = false,defaultValue = "false") boolean searchInTexts,
                          Model model,
-                         Principal principal) throws ParseException {
+                         Principal principal){
         if(!q.isEmpty()) {
             model.addAttribute("user", userDetailsManager.loadUserByPrincipal(principal));
             model.addAttribute("documentViewList",documentService.searchDocs(q,limit,searchInTexts));
@@ -30,5 +29,5 @@ public class SearchController {
         }
         return "redirect:/doc/main";
     }
-    //TODO improve search
+
 }

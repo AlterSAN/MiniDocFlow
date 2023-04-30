@@ -1,7 +1,6 @@
 package MiniDFlow.entity;
 
 
-import org.hibernate.search.annotations.*;
 
 import javax.persistence.*;
 
@@ -11,7 +10,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "DocumentVersion")
-@Indexed
 public class DocumentVersion implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,16 +18,13 @@ public class DocumentVersion implements Serializable {
 
     @JoinColumn(name = "documentId",nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    @IndexedEmbedded
     private Document documentId;
 
     @JoinColumn(name = "versionAuthor",nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    @IndexedEmbedded
     private Author versionAuthor;
 
     @Column(name = "content")
-    @Field(store = Store.YES,analyzer = @Analyzer(definition = "docVerAnalyzer"))
     private byte[] content;
 
     @Column(name = "version")

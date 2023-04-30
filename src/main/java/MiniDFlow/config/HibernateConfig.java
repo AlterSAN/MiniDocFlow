@@ -3,7 +3,6 @@ package MiniDFlow.config;
 import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.search.Search;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,9 +22,9 @@ public class HibernateConfig {
     public DataSource dataSource() {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/DocFlow");
+        dataSource.setUrl("jdbc:postgresql://localhost:5432/postgres");
         dataSource.setUsername("postgres");
-        dataSource.setPassword("admin");
+        dataSource.setPassword("postgres");
 
         return dataSource;
     }
@@ -44,10 +43,6 @@ public class HibernateConfig {
         hibernateProperties.setProperty(
                 "hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         hibernateProperties.setProperty("hibernate.show_sql","true");
-        hibernateProperties.setProperty("hibernate.search.default.directory_provider","filesystem");
-        hibernateProperties.setProperty("hibernate.search.default.indexBase",
-                "/lucene/indexes/");
-        hibernateProperties.setProperty("hibernate.search.lucene.analysis_definition_provider","MiniDFlow.config.LuceneAnalysisConfig");
         return hibernateProperties;
     }
 
@@ -59,12 +54,6 @@ public class HibernateConfig {
                 "MiniDFlow");
         sessionFactory.setHibernateProperties(hibernateProperties());
         return sessionFactory;
-    }
-
-    @Bean
-    @Scope("prototype")
-    public Session session(@Autowired SessionFactory sessionFactory){
-        return sessionFactory.openSession();
     }
 
 }

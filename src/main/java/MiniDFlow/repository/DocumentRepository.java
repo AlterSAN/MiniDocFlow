@@ -12,6 +12,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
@@ -143,5 +145,25 @@ public class DocumentRepository{
     @Transactional
     public long getCount(){
         return getSession().createQuery("select count(d) from Document d",Long.class).uniqueResult();
+    }
+
+    public List<DocumentView> searchByDocumentName(String query, int limit) {
+        Query<DocumentView> q = getSession().createQuery("""
+                select new MiniDFlow.entity.projection.DocumentView(
+                    d.id,
+                    d.name,
+                    d.author.username,
+                    d.lastVersion,
+                    d.isExist,
+                    d.registerCard.dateIntro,
+                    d.registerCard.documentIntroNumber
+                )
+                from Document d
+                where d.name ilike %:q%
+                
+                """,DocumentView.class);
+        q.setMaxResults(limit);
+        q.setParameter("q","query");
+        return q.getResultList();
     }
 }

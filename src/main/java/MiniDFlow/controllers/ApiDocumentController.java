@@ -2,11 +2,14 @@ package MiniDFlow.controllers;
 
 import MiniDFlow.POJO.DocumentPOJO;
 import MiniDFlow.POJO.DocumentUpdatePOJO;
+import MiniDFlow.entity.DocumentVersion;
 import MiniDFlow.entity.projection.DocumentView;
 import MiniDFlow.security.JdbcAuthorService;
 import MiniDFlow.service.AuthorService;
 import MiniDFlow.service.DocumentService;
 import javax.validation.Valid;
+
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -16,6 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
@@ -107,9 +111,12 @@ public class ApiDocumentController {
     public String download(@PathVariable int id,
                            @RequestParam(required = false,defaultValue = "-1",name = "ver") int ver,
                            HttpServletResponse response){
-        byte[] file = documentService.getFile(id,ver);
+        DocumentVersion docVer = documentService.getFile(id,ver);
+        response.setContentType("application/" +FilenameUtils.getExtension(docVer.getDocumentId().getName()));
+        response.setHeader("Content-Disposition", "filename=\""+ docVer.getDocumentId().getName()+"\"");
+        response.setContentLength(docVer.getContent().length);
         try{
-            InputStream inputStream = new ByteArrayInputStream(file);
+            InputStream inputStream = new ByteArrayInputStream(docVer.getContent());
             IOUtils.copy(inputStream,response.getOutputStream());
             response.flushBuffer();
         } catch (IOException e) {
